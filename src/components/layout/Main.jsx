@@ -7,26 +7,29 @@ const API_KEY = process.env.REACT_APP_API_KEY;
 
 export default class Main extends React.Component {
   state = {
-    // error: null,
+    error: null,
     isLoaded: true,
     films: [],
   };
 
   componentDidMount() {
-    fetch(`http://www.omdbapi.com/?apikey=${API_KEY}&s=matrix`)
+    fetch(`https://www.omdbapi.com/?apikey=${API_KEY}&s=matrix`)
       .then((data) => data.json())
       .then((data) => {
         this.setState({
           isLoaded: false,
           films: data.Search,
         });
+      })
+      .catch((error) => {
+        this.setState({ isLoaded: false, error });
       });
   }
 
   searchMovies = (str, type = "all") => {
     this.setState({ isLoaded: true });
     fetch(
-      `http://www.omdbapi.com/?apikey=${API_KEY}&s=${str}${
+      `https://www.omdbapi.com/?apikey=${API_KEY}&s=${str}${
         type !== "all" ? `&type=${type}` : ""
       }`
     )
@@ -36,6 +39,10 @@ export default class Main extends React.Component {
           isLoaded: false,
           films: data.Search,
         });
+      })
+      .catch((error) => {
+        console.error(error);
+        this.setState({ isLoaded: false, error });
       });
   };
 
