@@ -10,12 +10,6 @@ export default function Main() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // state = {
-  //   error: null,
-  //   isLoaded: true,
-  //   films: [],
-  // };
-
   const searchMovies = (str, type = "all") => {
     setIsLoading(true);
     fetch(
