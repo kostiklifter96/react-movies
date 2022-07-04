@@ -1,33 +1,23 @@
-import React from "react";
-import { Movies } from "../Movies";
+import React, { useEffect, useState } from "react";
+import Movies from "../Movies";
 import Search from "../Search";
 import Preloader from "./../Preloader";
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 
-export default class Main extends React.Component {
-  state = {
-    error: null,
-    isLoaded: true,
-    films: [],
-  };
+export default function Main() {
+  const [films, setFilms] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  componentDidMount() {
-    fetch(`https://www.omdbapi.com/?apikey=${API_KEY}&s=matrix`)
-      .then((data) => data.json())
-      .then((data) => {
-        this.setState({
-          isLoaded: false,
-          films: data.Search,
-        });
-      })
-      .catch((error) => {
-        this.setState({ isLoaded: false, error });
-      });
-  }
+  // state = {
+  //   error: null,
+  //   isLoaded: true,
+  //   films: [],
+  // };
 
-  searchMovies = (str, type = "all") => {
-    this.setState({ isLoaded: true });
+  const searchMovies = (str, type = "all") => {
+    setIsLoading(true);
     fetch(
       `https://www.omdbapi.com/?apikey=${API_KEY}&s=${str}${
         type !== "all" ? `&type=${type}` : ""
@@ -35,26 +25,34 @@ export default class Main extends React.Component {
     )
       .then((data) => data.json())
       .then((data) => {
-        this.setState({
-          isLoaded: false,
-          films: data.Search,
-        });
+        setFilms(data.Search);
+        setIsLoading(false);
       })
       .catch((error) => {
         console.error(error);
-        this.setState({ isLoaded: false, error });
+        setIsLoading(false);
+        setError(error);
       });
   };
 
-  render() {
-    const { films, isLoaded } = this.state;
+  useEffect(() => {
+    fetch(`https://www.omdbapi.com/?apikey=${API_KEY}&s=matrix`)
+      .then((data) => data.json())
+      .then((data) => {
+        setFilms(data.Search);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error(error);
+        setIsLoading(false);
+        setError(error);
+      });
+  }, []);
 
-    return (
-      <main className="container content">
-        <Search searchMovies={this.searchMovies} />
-
-        {isLoaded ? <Preloader /> : <Movies films={films} />}
-      </main>
-    );
-  }
+  return (
+    <main className="container content">
+      <Search searchMovies={searchMovies} />
+      {isLoading ? <Preloader /> : <Movies films={films} />}
+    </main>
+  );
 }
